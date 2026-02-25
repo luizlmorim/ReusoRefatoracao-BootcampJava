@@ -2,48 +2,42 @@ package br.com.nogueiranogueira.aularefatoracao.solidproject.service;
 
 import br.com.nogueiranogueira.aularefatoracao.solidproject.dto.UsuarioDTO;
 import br.com.nogueiranogueira.aularefatoracao.solidproject.model.Usuario;
-import br.com.nogueiranogueira.aularefatoracao.solidproject.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.nogueiranogueira.aularefatoracao.solidproject.repository.GerenciadorUsuarioRepository;
+import br.com.nogueiranogueira.aularefatoracao.solidproject.service.RegraUsuario;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class GerenciadorUsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final GerenciadorUsuarioRepository repository;
 
-    public Usuario criarUsuario(UsuarioDTO dto) {
-        String tipo = dto.tipo();
+    private final List<RegraUsuario> regras;
 
-        if ("COMUM".equals(tipo)) {
-            // Regras para usuário comum
-            validarEmail(dto.email());
-            Usuario usuario = new Usuario(dto.nome(), dto.email(), dto.tipo());
-            usuario.setPontos(0);
-            return usuarioRepository.save(usuario);
+    public GerenciadorUsuarioService(
+            GerenciadorUsuarioRepository repository,
+            List<RegraUsuario> regras
+    ) {
 
-        } else if ("VIP".equals(tipo)) {
-            // Regras para usuário VIP
-            validarEmail(dto.email());
-            validarIdade(dto.idade());
-            Usuario usuario = new Usuario(dto.nome(), dto.email(), dto.tipo());
-            usuario.setPontos(100);
-            return usuarioRepository.save(usuario);
+        this.repository = repository;
+        this.regras = regras;
 
-        } else {
-            throw new IllegalArgumentException("Tipo inválido");
-        }
     }
 
-    private void validarEmail(String email) {
-        if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("E-mail inválido");
-        }
+    public Usuario criarUsuario(UsuarioDTO dto){
+
+        RegraUsuario regra =
+                regras.stream()
+                        .filter(r -> r.getTipo().equals(dto.tipo()))
+                        .findFirst()
+                        .orElseThrow(() ->
+                                new IllegalArgumentException("Tipo não encontrado"));
+
+        Usuario usuario = regra.criarUsuario(dto);
+
+        return repository.salvar(usuario);
+
     }
 
-    private void validarIdade(int idade){
-        if (idade < 18) {
-            throw new IllegalArgumentException("Usuário deve ser maior de idade");
-        }
-    }
 }
