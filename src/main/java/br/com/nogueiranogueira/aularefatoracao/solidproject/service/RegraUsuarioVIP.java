@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegraUsuarioVIP implements RegraUsuario {
 
+    private final EmailValidator emailValidator;
+
+    public RegraUsuarioVIP(EmailValidator emailValidator) {
+        this.emailValidator = emailValidator;
+    }
+
     @Override
     public String getTipo() {
         return "VIP";
@@ -15,7 +21,7 @@ public class RegraUsuarioVIP implements RegraUsuario {
     @Override
     public Usuario criarUsuario(UsuarioDTO dto) {
 
-        validarEmail(dto.email());
+        emailValidator.validar(dto.email());
         validarIdade(dto.idade());
 
         Usuario usuario = new Usuario(
@@ -29,18 +35,8 @@ public class RegraUsuarioVIP implements RegraUsuario {
         return usuario;
     }
 
-    private void validarEmail(String email){
-
-        if(email == null || !email.contains("@"))
-            throw new IllegalArgumentException("Email inválido");
-
-    }
-
     private void validarIdade(int idade){
-
         if(idade < 18)
             throw new IllegalArgumentException("Menor de idade");
-
     }
-
 }
