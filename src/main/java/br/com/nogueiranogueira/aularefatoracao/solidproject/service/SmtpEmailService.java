@@ -3,11 +3,14 @@ package br.com.nogueiranogueira.aularefatoracao.solidproject.service;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
-public class SmtpEmailService {
+@Component
+public class SmtpEmailService implements EmailService {
 
+    @Override
     public void sendEmail(String to, String subject, String body) {
 
         Properties prop = new Properties();
@@ -37,7 +40,7 @@ public class SmtpEmailService {
             message.setSubject(subject);
             message.setText(body);
 
-            System.out.println("Enviando...");
+            System.out.println("Enviando e-mail para: " + to);
             Transport.send(message);
             System.out.println("E-mail enviado com sucesso!");
 
@@ -45,5 +48,10 @@ public class SmtpEmailService {
 
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void enviar(String para, String assunto, String mensagem) {
+
     }
 }

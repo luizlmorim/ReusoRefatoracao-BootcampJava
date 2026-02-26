@@ -7,21 +7,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsuarioMailSenderService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final EmailService emailService;
 
-    private SmtpEmailService smtpEmailService;
-
-    public UsuarioMailSenderService() {
-        this.smtpEmailService = new SmtpEmailService();
+    public UsuarioMailSenderService(EmailService emailService) {
+        this.emailService = emailService;
     }
 
     public void enviarEmailBoasVindas(String email) {
-        // Lógica para enviar email de boas-vindas
-        String assunto = "Bem-vindo ao nosso sistema!";
-        String mensagem = "Olá! Obrigado por se cadastrar em nosso sistema.";
-        smtpEmailService.sendEmail(email, assunto, mensagem);
+        emailService.enviar(email, "Bem-vindo", "Obrigado por se registar!");
     }
-
 
 }
